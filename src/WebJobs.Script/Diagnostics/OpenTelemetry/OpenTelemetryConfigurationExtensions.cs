@@ -119,7 +119,6 @@ namespace Microsoft.Azure.WebJobs.Script.Diagnostics.OpenTelemetry
                 if (enableAzureMonitor)
                 {
                     builder.AddAzureMonitorTraceExporter(opt => ConfigureAzureMonitorOptions(opt, azMonConnectionString, credential));
-                    builder.AddLiveMetrics(opt => ConfigureAzureMonitorOptions(opt, azMonConnectionString, credential));
                 }
 
                 builder.AddProcessor(ActivitySanitizingProcessor.Instance);
@@ -207,15 +206,6 @@ namespace Microsoft.Azure.WebJobs.Script.Diagnostics.OpenTelemetry
         }
 
         private static void ConfigureAzureMonitorOptions(AzureMonitorExporterOptions options, string connectionString, TokenCredential credential)
-        {
-            options.ConnectionString = connectionString;
-            if (credential is not null)
-            {
-                options.Credential = credential;
-            }
-        }
-
-        private static void ConfigureAzureMonitorOptions(LiveMetricsExporterOptions options, string connectionString, TokenCredential credential)
         {
             options.ConnectionString = connectionString;
             if (credential is not null)

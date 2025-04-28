@@ -1566,6 +1566,10 @@ namespace Microsoft.Azure.WebJobs.Script.Grpc
                 {
                     invocation.Context?.ResultSource?.TrySetException(workerException);
                 }
+                else
+                {
+                    invocation.Context?.ResultSource?.TrySetCanceled();
+                }
 
                 RemoveExecutingInvocation(invocationId);
             }

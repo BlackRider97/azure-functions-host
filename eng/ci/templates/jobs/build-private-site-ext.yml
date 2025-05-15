@@ -22,6 +22,7 @@ jobs:
       publishDir: $(site_ext_path)
 
   - pwsh: |
-      $(site_ext_path)/New-PrivateSiteExtension.ps1 -InputPath '$(site_ext_path)' -OutputPath '$(windows_drop_path)'
+      cd $(site_ext_path)
+      ./New-PrivateSiteExtension.ps1 -OutputPath '$(windows_drop_path)'
       Write-Host "##vso[build.addbuildtag]private-site-ext"
     displayName: Compress private site extension

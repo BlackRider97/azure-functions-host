@@ -65,7 +65,7 @@ if (-not (Join-Path $InputPath "extension.xml" | Test-Path))
     exit 1
 }
 
-if (-not $OutputPath || $AppendOutputName)
+if ($AppendOutputName || !$OutputPath)
 {
     $runtime = $Bitness -eq '32bit' ? 'win-x86' : 'win-x64'
     $leaf = (Split-Path $InputPath -Leaf)

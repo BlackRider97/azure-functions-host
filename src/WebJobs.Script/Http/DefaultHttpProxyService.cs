@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Script.Exceptions;
 using Microsoft.Azure.WebJobs.Script.Workers;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace Microsoft.Azure.WebJobs.Script.Http
 {
@@ -21,6 +22,7 @@ namespace Microsoft.Azure.WebJobs.Script.Http
         private readonly HttpMessageInvoker _messageInvoker;
         private readonly ForwarderRequestConfig _forwarderRequestConfig;
         private readonly ILogger<DefaultHttpProxyService> _logger;
+        private readonly HttpTransformer _httpTransformer;
 
         public DefaultHttpProxyService(IHttpForwarder httpForwarder, ILogger<DefaultHttpProxyService> logger)
         {
@@ -39,6 +41,8 @@ namespace Microsoft.Azure.WebJobs.Script.Http
             {
                 ActivityTimeout = TimeSpan.FromSeconds(240)
             };
+
+            _httpTransformer = new ScriptInvocationRequestTransformer();
         }
 
         public void Dispose()
@@ -98,7 +102,10 @@ namespace Microsoft.Azure.WebJobs.Script.Http
             // add invocation id as correlation id, override existing header if present
             httpRequest.Headers[ScriptConstants.HttpProxyCorrelationHeader] = context.ExecutionContext.InvocationId.ToString();
 
-            var forwardingTask = _httpForwarder.SendAsync(httpContext, httpUri.ToString(), _messageInvoker, _forwarderRequestConfig).AsTask();
+            httpContext.Items[ScriptConstants.HttpProxyScriptInvocationContext] = context;
+
+
+            var forwardingTask = _httpForwarder.SendAsync(httpContext, httpUri.ToString(), _messageInvoker, _forwarderRequestConfig, _httpTransformer).AsTask();
             context.Properties[ScriptConstants.HttpProxyTask] = forwardingTask;
         }
     }

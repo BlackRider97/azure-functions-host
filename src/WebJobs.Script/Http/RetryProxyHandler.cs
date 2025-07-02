@@ -5,6 +5,8 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Script.Description;
+using Microsoft.Azure.WebJobs.Script.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Azure.WebJobs.Script.Http
@@ -30,11 +32,22 @@ namespace Microsoft.Azure.WebJobs.Script.Http
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            TaskCompletionSource<ScriptInvocationResult> resultSource = null;
+            if (request.Options.TryGetValue(ScriptConstants.HttpProxyScriptInvocationContext, out ScriptInvocationContext scriptInvocationContext))
+            {
+                resultSource = scriptInvocationContext.ResultSource;
+            }
+
             var currentDelay = InitialDelay;
             for (int attemptCount = 1; attemptCount <= MaxRetries; attemptCount++)
             {
                 try
                 {
+                    if (resultSource is not null && resultSource.Task.IsFaulted)
+                    {
+                        throw resultSource.Task.Exception.InnerException;
+                    }
+
                     return await base.SendAsync(request, cancellationToken);
                 }
                 catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -50,6 +63,11 @@ namespace Microsoft.Azure.WebJobs.Script.Http
                     await Task.Delay(currentDelay, cancellationToken);
 
                     currentDelay = Math.Min(currentDelay * 2, MaximumDelay);
+                }
+                catch (WorkerShutdownException)
+                {
+                    _logger.LogInformation("Language worker channel is shutting down. Request will not be retried.");
+                    throw;
                 }
                 catch (Exception ex)
                 {

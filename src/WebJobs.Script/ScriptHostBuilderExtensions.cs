@@ -492,6 +492,7 @@ namespace Microsoft.Azure.WebJobs.Script
 
                     t.TelemetryProcessorChainBuilder.Use(next => new WorkerTraceFilterTelemetryProcessor(next));
                     t.TelemetryProcessorChainBuilder.Use(next => new ScriptTelemetryProcessor(next));
+                    t.TelemetryProcessorChainBuilder.Use(next => new LastProcessor(next));
                 });
 
                 builder.Services.ConfigureOptions<ApplicationInsightsLoggerOptionsSetup>();

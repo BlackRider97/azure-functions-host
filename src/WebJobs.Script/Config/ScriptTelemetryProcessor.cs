@@ -3,15 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
 using Microsoft.Azure.WebJobs.Script.Workers.Rpc;
+using Newtonsoft.Json;
 
 namespace Microsoft.Azure.WebJobs.Script.Config
 {
     internal class ScriptTelemetryProcessor : ITelemetryProcessor
     {
+        private const string EventName = nameof(ScriptTelemetryProcessor);
+        private static readonly DiagnosticListener _source = new DiagnosticListener(string.Concat(ApplicationInsightsDiagnosticConstants.ApplicationInsightsDiagnosticSourcePrefix, nameof(ScriptTelemetryProcessor)));
+
         public ScriptTelemetryProcessor(ITelemetryProcessor next)
         {
             this.Next = next;
@@ -21,6 +27,12 @@ namespace Microsoft.Azure.WebJobs.Script.Config
 
         public void Process(ITelemetry item)
         {
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new SafeContractResolver()
+            };
+
+            _source.Write(EventName, "ScriptTelemetryProcessor Beginning-" + JsonConvert.SerializeObject(item, settings));
             // Only process if exception is thrown by user code (if IsUserException is true).
             if (item is ExceptionTelemetry exceptionTelemetry
                 && exceptionTelemetry?.Exception?.InnerException is RpcException rpcException
@@ -28,6 +40,7 @@ namespace Microsoft.Azure.WebJobs.Script.Config
             {
                 item = ToUserException(rpcException, item);
             }
+            _source.Write(EventName, "ScriptTelemetryProcessor End-" + JsonConvert.SerializeObject(item, settings));
             this.Next.Process(item);
         }
 
@@ -35,7 +48,7 @@ namespace Microsoft.Azure.WebJobs.Script.Config
         {
             string typeName = string.IsNullOrEmpty(rpcException.RemoteTypeName) ? rpcException.GetType().ToString() : rpcException.RemoteTypeName;
 
-            var userExceptionDetails = new ExceptionDetailsInfo(1, -1, typeName, rpcException.RemoteMessage, true, rpcException.RemoteStackTrace, new StackFrame[] { });
+            var userExceptionDetails = new ExceptionDetailsInfo(1, -1, typeName, rpcException.RemoteMessage, true, rpcException.RemoteStackTrace, new ApplicationInsights.DataContracts.StackFrame[] { });
 
             ExceptionTelemetry newET = new ExceptionTelemetry(new[] { userExceptionDetails },
             SeverityLevel.Error, "ProblemId",

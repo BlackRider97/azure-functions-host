@@ -1,13 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.ApplicationInsights.Extensibility;
 using System;
 using System.Diagnostics.Tracing;
+using Microsoft.ApplicationInsights.Extensibility;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {
-    /// <summary>    
+    /// <summary>
     /// Initializes <see cref="ApplicationInsightsEventListener"/> that listens to events produced by ApplicationInsights SDK.
     /// </summary>
     internal class SelfDiagnosticsTelemetryModule : ITelemetryModule, IDisposable
@@ -24,7 +24,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         {
             _eventListener = new ApplicationInsightsEventListener(_eventLevel);
         }
-        
+
         public void Dispose()
         {
             Dispose(disposing: true);

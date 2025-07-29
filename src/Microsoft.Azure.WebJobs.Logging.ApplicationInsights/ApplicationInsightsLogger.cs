@@ -21,12 +21,6 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {
     internal class ApplicationInsightsLogger : ILogger
     {
-        private readonly TelemetryClient _telemetryClient;
-        private readonly ApplicationInsightsLoggerOptions _loggerOptions;
-        private readonly string _categoryName;
-        private readonly bool _isUserFunction = false;
-        private static readonly ConcurrentDictionary<string, string> _prefixedProperyNames = new ConcurrentDictionary<string, string>();
-
         private const string DefaultCategoryName = "Default";
         private const string DateTimeFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffK";
         private const string OperationContext = "MS_OperationContext";
@@ -34,7 +28,13 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         internal const string MetricCountKey = "count";
         internal const string MetricMinKey = "min";
         internal const string MetricMaxKey = "max";
-        internal const string MetricStandardDeviationKey = "standarddeviation";
+        internal const string MetricStandardDeviationKey = "standard-deviation";
+
+        private readonly TelemetryClient _telemetryClient;
+        private readonly ApplicationInsightsLoggerOptions _loggerOptions;
+        private readonly string _categoryName;
+        private readonly bool _isUserFunction = false;
+        private static readonly ConcurrentDictionary<string, string> _prefixedPropertyNames = new ConcurrentDictionary<string, string>();
 
         private static readonly HashSet<string> SystemScopeKeys = new HashSet<string>
             {
@@ -222,7 +222,6 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 
             var severityLevel = GetSeverityLevel(logLevel);
 
-
             if (severityLevel.HasValue)
             {
                 telemetry.SeverityLevel = severityLevel;
@@ -274,6 +273,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                 properties[LogConstants.EventNameKey] = eventId.Name;
             }
         }
+
         internal static void ApplyProperty(IDictionary<string, string> properties, string key, object objectValue, bool applyPrefix = false)
         {
             // do not apply null values
@@ -302,7 +302,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                 stringValue = objectValue.ToString();
             }
 
-            string prefixedKey = applyPrefix ? _prefixedProperyNames.GetOrAdd(key, k =>
+            string prefixedKey = applyPrefix ? _prefixedPropertyNames.GetOrAdd(key, k =>
             {
                 return $"{LogConstants.CustomPropertyPrefix}{k}";
             }) : key;
@@ -407,8 +407,8 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         /// <summary>
         /// Stamps functions attributes (InvocationId, function execution time, Category and LogLevel) on the Activity.Current
         /// </summary>
-        /// <param name="state"></param>
-        /// <param name="scope"></param>
+        /// <param name="state">state</param>
+        /// <param name="scope">scope</param>
         private void ApplyFunctionResultActivityTags(IEnumerable<KeyValuePair<string, object>> state, IReadOnlyDictionary<string, object> scope, LogLevel logLevel)
         {
             // Activity carries tracing context. It is managed by instrumented library (e.g. ServiceBus or Asp.Net Core)

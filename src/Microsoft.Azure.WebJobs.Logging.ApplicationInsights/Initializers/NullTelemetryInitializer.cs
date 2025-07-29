@@ -9,6 +9,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
     internal class NullTelemetryInitializer : ITelemetryInitializer
     {
         public static NullTelemetryInitializer Instance { get; } = new NullTelemetryInitializer();
+
         public void Initialize(ITelemetry telemetry)
         {
         }

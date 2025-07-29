@@ -1,6 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Runtime;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -10,11 +15,6 @@ using Microsoft.Azure.WebJobs.Logging.ApplicationInsights.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Runtime;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {
@@ -151,7 +151,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                         {
                             foreach (var tag in currentActivity.Tags)
                             {
-                                // Apply well-known tags and custom properties, 
+                                // Apply well-known tags and custom properties,
                                 // but ignore internal ai tags
                                 if (!TryApplyProperty(request, tag) &&
                                     !tag.Key.StartsWith("ai_"))
@@ -194,7 +194,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             {
                 if (!request.Properties.ContainsKey(LogConstants.HttpMethodKey))
                 {
-                    // App Insights sets request.Name as 'VERB /path'. We want to extract the VERB. 
+                    // App Insights sets request.Name as 'VERB /path'. We want to extract the VERB.
                     var verbEnd = request.Name.IndexOf(' ');
                     if (verbEnd > 0)
                     {

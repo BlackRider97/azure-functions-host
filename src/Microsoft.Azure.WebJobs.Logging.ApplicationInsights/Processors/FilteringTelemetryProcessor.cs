@@ -1,26 +1,24 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.WebJobs.Logging.ApplicationInsights.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {
     internal class FilteringTelemetryProcessor : ITelemetryProcessor
     {
+        private const string EventName = nameof(FilteringTelemetryProcessor);
         private static readonly LoggerRuleSelector RuleSelector = new LoggerRuleSelector();
         private static readonly Type ProviderType = typeof(ApplicationInsightsLoggerProvider);
-        private const string EventName = nameof(FilteringTelemetryProcessor);
         private static readonly DiagnosticListener _source = new DiagnosticListener(string.Concat(ApplicationInsightsDiagnosticConstants.ApplicationInsightsDiagnosticSourcePrefix, nameof(FilteringTelemetryProcessor)));
-
-
         private readonly ConcurrentDictionary<string, LoggerFilterRule> _ruleMap = new ConcurrentDictionary<string, LoggerFilterRule>();
         private readonly LoggerFilterOptions _filterOptions;
         private ITelemetryProcessor _next;

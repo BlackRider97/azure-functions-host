@@ -1,14 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Diagnostics;
+using System.Runtime;
+using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Runtime;
-using System.Threading.Tasks;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {

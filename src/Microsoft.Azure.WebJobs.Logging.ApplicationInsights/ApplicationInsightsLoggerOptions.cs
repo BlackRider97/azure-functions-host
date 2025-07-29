@@ -28,7 +28,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         /// Gets or sets Application Insights Authentication Mode. If set, this will
         /// take precedence over the default connection string based ingestion.
         /// </summary>
-        public TokenCredentialOptions TokenCredentialOptions { get; set; }   
+        public TokenCredentialOptions TokenCredentialOptions { get; set; }
 
         /// <summary>
         /// Gets or sets sampling settings.
@@ -60,6 +60,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             {
                 return LiveMetricsAuthenticationApiKey;
             }
+
             set
             {
                 LiveMetricsAuthenticationApiKey = value;
@@ -82,6 +83,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             {
                 return LiveMetricsInitializationDelay;
             }
+
             set
             {
                 LiveMetricsInitializationDelay = value;
@@ -95,43 +97,43 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         public TimeSpan LiveMetricsInitializationDelay { get; set; } = TimeSpan.FromSeconds(15);
 
         /// <summary>
-        /// Gets or sets flag that enables Kudu performance counters collection.
+        /// Gets or sets a value indicating whether Kudu performance counters collection.
         /// https://github.com/projectkudu/kudu/wiki/Perf-Counters-exposed-as-environment-variables.
         /// Enabled by default.
         /// </summary>
         public bool EnablePerformanceCountersCollection { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the flag that enables live metrics collection.
+        /// Gets or sets a value indicating whether live metrics collection.
         /// Enabled by default.
         /// </summary>
         public bool EnableLiveMetrics { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the flag that enables dependency tracking.
+        /// Gets or sets a value indicating whether enables dependency tracking is enabled.
         /// Enabled by default.
         /// </summary>
         public bool EnableDependencyTracking { get; set; } = true;
 
         /// <summary>
-        /// Configuration for dependency tracking. The dependency tracking configuration only takes effect if EnableDependencyTracking is set to true
+        /// Gets or sets configuration for dependency tracking. The dependency tracking configuration only takes effect if EnableDependencyTracking is set to true
         /// </summary>
         public DependencyTrackingOptions DependencyTrackingOptions { get; set; }
 
         /// <summary>
-        /// Gets or sets a value that filters logs before they are sent to Live Metrics. False by default.
+        /// Gets or sets a value indicating whether filters logs before they are sent to Live Metrics. False by default.
         /// When false, all logs are sent to Live Metrics, regardless of any log filter configuration. When true,
         /// the logs are filtered before they are sent.
         /// </summary>
         public bool EnableLiveMetricsFilters { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets HTTP request collection options. 
+        /// Gets or sets HTTP request collection options.
         /// </summary>
         public HttpAutoCollectionOptions HttpAutoCollectionOptions { get; set; } = new HttpAutoCollectionOptions();
 
         /// <summary>
-        /// Gets or sets a value that removes the query parameters from functions URLs. False by default.
+        /// Gets or sets a value indicating whether removes the query parameters from functions URLs. False by default.
         /// When false (default), the query parameters are stripped off of the functions URL for logging HTTP trigger calls.
         /// When true, query parameters are logged.
         /// </summary>
@@ -144,25 +146,25 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         public EventLevel? DiagnosticsEventListenerLogLevel { get; set; }
 
         /// <summary>
-        /// Gets or sets the flag that enables standard metrics collection in ApplicationInsights.
+        /// Gets or sets a value indicating whether enables standard metrics collection in ApplicationInsights.
         /// Disabled by default.
         /// </summary>
         public bool EnableAutocollectedMetricsExtractor { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the flag that bypass custom dimensions in Metrics telemetry.
+        /// Gets or sets a value indicating whether that bypass custom dimensions in Metrics telemetry.
         /// Disabled by default.
         /// </summary>
         public bool EnableMetricsCustomDimensionOptimization { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the flag that enables Adaptive Sampling delay.
+        /// Gets or sets a value indicating whether that enables Adaptive Sampling delay.
         /// Enabled by default.
         /// </summary>
         public bool EnableAdaptiveSamplingDelay { get; set; } = true;
 
         /// <summary>
-        /// Specifies the delay time for initializing Adaptive Sampling, allowing more initialization logs to be sent to Application Insights.
+        /// Gets or sets the delay time for initializing Adaptive Sampling, allowing more initialization logs to be sent to Application Insights.
         /// The default value is 15 seconds.
         /// </summary>
         public TimeSpan AdaptiveSamplingInitializationDelay { get; set; } = TimeSpan.FromSeconds(15);
@@ -222,12 +224,12 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                 dependencyTrackingOptions = new JObject
                 {
                     { nameof(DependencyTrackingOptions.DisableRuntimeInstrumentation), DependencyTrackingOptions.DisableRuntimeInstrumentation },
-                    { nameof(DependencyTrackingOptions.DisableDiagnosticSourceInstrumentation), DependencyTrackingOptions.DisableDiagnosticSourceInstrumentation},
-                    { nameof(DependencyTrackingOptions.EnableLegacyCorrelationHeadersInjection), DependencyTrackingOptions.EnableLegacyCorrelationHeadersInjection},
-                    { nameof(DependencyTrackingOptions.EnableRequestIdHeaderInjectionInW3CMode), DependencyTrackingOptions.EnableRequestIdHeaderInjectionInW3CMode},
-                    { nameof(DependencyTrackingOptions.EnableSqlCommandTextInstrumentation), DependencyTrackingOptions.EnableSqlCommandTextInstrumentation},
-                    { nameof(DependencyTrackingOptions.SetComponentCorrelationHttpHeaders), DependencyTrackingOptions.SetComponentCorrelationHttpHeaders},
-                    { nameof(DependencyTrackingOptions.EnableAzureSdkTelemetryListener), DependencyTrackingOptions.EnableAzureSdkTelemetryListener}
+                    { nameof(DependencyTrackingOptions.DisableDiagnosticSourceInstrumentation), DependencyTrackingOptions.DisableDiagnosticSourceInstrumentation },
+                    { nameof(DependencyTrackingOptions.EnableLegacyCorrelationHeadersInjection), DependencyTrackingOptions.EnableLegacyCorrelationHeadersInjection },
+                    { nameof(DependencyTrackingOptions.EnableRequestIdHeaderInjectionInW3CMode), DependencyTrackingOptions.EnableRequestIdHeaderInjectionInW3CMode },
+                    { nameof(DependencyTrackingOptions.EnableSqlCommandTextInstrumentation), DependencyTrackingOptions.EnableSqlCommandTextInstrumentation },
+                    { nameof(DependencyTrackingOptions.SetComponentCorrelationHttpHeaders), DependencyTrackingOptions.SetComponentCorrelationHttpHeaders },
+                    { nameof(DependencyTrackingOptions.EnableAzureSdkTelemetryListener), DependencyTrackingOptions.EnableAzureSdkTelemetryListener }
                 };
             }
 
@@ -236,7 +238,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             {
                 tokenCredentialOptions = new JObject
                 {
-                    { nameof(TokenCredentialOptions.ClientId), string.IsNullOrEmpty(TokenCredentialOptions.ClientId)? null : "*******" }
+                    { nameof(TokenCredentialOptions.ClientId), string.IsNullOrEmpty(TokenCredentialOptions.ClientId) ? null : "*******" }
                 };
             }
 

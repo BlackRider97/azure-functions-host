@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-// This file is copied directly from: 
+// This file is copied directly from:
 // https://github.com/aspnet/Logging/blob/cc350d7ef616ef292c1b4ae7130b8c2b45fc1164/src/Microsoft.Extensions.Logging/LoggerRuleSelector.cs.
 
 using System;
@@ -40,7 +40,6 @@ namespace Microsoft.Extensions.Logging
                 minLevel = current.LogLevel;
             }
         }
-
 
         private static bool IsBetter(LoggerFilterRule rule, LoggerFilterRule current, string logger, string category)
         {

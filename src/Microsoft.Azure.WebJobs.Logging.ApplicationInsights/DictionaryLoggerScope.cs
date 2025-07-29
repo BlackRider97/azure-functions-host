@@ -12,16 +12,16 @@ namespace Microsoft.Azure.WebJobs.Logging
     {
         private static AsyncLocal<DictionaryLoggerScope> _value = new AsyncLocal<DictionaryLoggerScope>();
 
-        // Cache merged dictionary.  
-        internal IReadOnlyDictionary<string, object> CurrentScope { get; private set; }
-
-        internal DictionaryLoggerScope Parent { get; private set; }
-
         private DictionaryLoggerScope(IReadOnlyDictionary<string, object> currentScope, DictionaryLoggerScope parent)
         {
             CurrentScope = currentScope;
             Parent = parent;
         }
+
+        // Cache merged dictionary.
+        internal IReadOnlyDictionary<string, object> CurrentScope { get; private set; }
+
+        internal DictionaryLoggerScope Parent { get; private set; }
 
         public static DictionaryLoggerScope Current
         {
@@ -87,7 +87,7 @@ namespace Microsoft.Azure.WebJobs.Logging
             }
             Current = new DictionaryLoggerScope(new ReadOnlyDictionary<string, object>(scopeInfo), Current);
         }
-                
+
         public static IReadOnlyDictionary<string, object> GetMergedStateDictionaryOrNull()
         {
             if (Current == null)

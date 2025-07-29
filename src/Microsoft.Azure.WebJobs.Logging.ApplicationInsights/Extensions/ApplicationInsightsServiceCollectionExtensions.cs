@@ -1,6 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Tracing;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Azure.Core;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.AspNetCore;
@@ -23,16 +31,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Reflection;
-using System.Runtime;
-using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -45,7 +43,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return services.AddApplicationInsights(_ => { }, _ => { });
         }
-
 
         public static IServiceCollection AddApplicationInsights(this IServiceCollection services,
             Action<ApplicationInsightsLoggerOptions> loggerOptionsConfiguration)
@@ -61,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ISdkVersionProvider, WebJobsSdkVersionProvider>();
             services.TryAddSingleton<IRoleInstanceProvider, WebJobsRoleInstanceProvider>();
 
-            // Bind to the configuration section registered with 
+            // Bind to the configuration section registered with
             services.AddOptions<ApplicationInsightsLoggerOptions>()
                 .Configure<ILoggerProviderConfiguration<ApplicationInsightsLoggerProvider>>((options, config) =>
                 {
@@ -198,7 +195,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     : ActivityIdFormat.Hierarchical;
                 Activity.ForceDefaultIdFormat = true;
 
-                // If we do not want to filter LiveMetrics logs, we need to "late filter" using the 
+                // If we do not want to filter LiveMetrics logs, we need to "late filter" using the
                 // custom filter options that were passed in during initialization.
                 LoggerFilterOptions filterOptions = null;
                 if (options.EnableLiveMetrics && !options.EnableLiveMetricsFilters)
@@ -485,12 +482,31 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static string FormatValue(object value)
         {
-            if (value == null) return "null";
-            if (value is string str) return $"\"{str}\"";
-            if (value is bool b) return b.ToString().ToLower();
-            if (value.GetType().IsValueType) return value.ToString();
+            if (value == null)
+            {
+                return "null";
+            }
+
+            if (value is string str)
+            {
+                return $"\"{str}\"";
+            }
+
+            if (value is bool b)
+            {
+                return b.ToString().ToLower();
+            }
+
+            if (value.GetType().IsValueType)
+            {
+                return value.ToString();
+            }
+
             if (value is ICollection collection)
+            {
                 return $"Collection (Count: {collection.Count})";
+            }
+
             return $"{value.GetType().Name}: {value}";
         }
 
@@ -620,7 +636,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     idx++;
                 }
                 if (idx == 0)
+                {
                     result.AppendLine("          [No handlers configured - all requests will be tracked]");
+                }
             }
         }
 

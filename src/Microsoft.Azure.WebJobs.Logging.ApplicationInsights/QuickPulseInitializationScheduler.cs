@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {
-    // We need to be able to delay initialization in Functions for cold start, 
+    // We need to be able to delay initialization in Functions for cold start,
     // so perform this initialization in a service that can handle cancellation.
     internal class QuickPulseInitializationScheduler : IDisposable
     {

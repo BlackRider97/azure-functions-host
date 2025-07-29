@@ -12,20 +12,20 @@ using System.Timers;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {
-    /// <summary>    
+    /// <summary>
     /// Implementation of <see cref="EventListener"/> that listens to events produced by ApplicationInsights SDK.
     /// Logs data either every 10 seconds or when the batch becomes full, whichever occurs first.
-    /// Logs in batch to reduce the volume of logs in kusto    
+    /// Logs in batch to reduce the volume of logs in kusto
     /// </summary>
     internal class ApplicationInsightsEventListener : EventListener
     {
-        private static readonly DiagnosticListener _source = new DiagnosticListener(string.Concat(ApplicationInsightsDiagnosticConstants.ApplicationInsightsDiagnosticSourcePrefix, nameof(ApplicationInsightsEventListener)));
-        private readonly EventLevel _eventLevel;
-
         private const int LogFlushIntervalMs = 10 * 1000;
         private const string EventSourceNamePrefix = "Microsoft-ApplicationInsights-";
         private const string EventName = nameof(ApplicationInsightsEventListener);
         private const int MaxLogLinesPerFlushInterval = 30;
+
+        private static readonly DiagnosticListener _source = new DiagnosticListener(string.Concat(ApplicationInsightsDiagnosticConstants.ApplicationInsightsDiagnosticSourcePrefix, nameof(ApplicationInsightsEventListener)));
+        private readonly EventLevel _eventLevel;
 
         private Timer _flushTimer;
         private ConcurrentQueue<string> _logBuffer = new ConcurrentQueue<string>();
@@ -93,7 +93,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             {
                 sb.AppendLine(line);
             }
-            _source.Write(EventName, sb.ToString());            
+            _source.Write(EventName, sb.ToString());
         }
 
         protected virtual void Dispose(bool disposing)

@@ -1,14 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Diagnostics;
+using System.Reflection;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {

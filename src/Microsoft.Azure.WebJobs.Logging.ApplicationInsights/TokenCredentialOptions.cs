@@ -1,11 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Azure.Core;
-using Azure.Identity;
 using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
+using Azure.Core;
+using Azure.Identity;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 {
@@ -16,7 +16,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         private const string AuthClientIdKey = "ClientId";
 
         /// <summary>
-        /// The client ID of an user-assigned identity.
+        /// Gets or sets client ID of an user-assigned identity.
         /// </summary>
         /// <remarks>
         /// This must be specified if you're using user-assigned managed identity.
@@ -81,7 +81,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                 if (key.Equals(AuthAuthorizationKey, StringComparison.OrdinalIgnoreCase))
                 {
                     if (!applicationInsightsAuthenticationString.Substring(indexOfEquals + 1, length - keyLength - 1).Trim().Equals(AuthToken, StringComparison.OrdinalIgnoreCase))
-                    { 
+                    {
                         throw new InvalidCredentialException("Credential supplied is not valid for the authorization mechanism being used in ApplicationInsights.");
                     }
                     isValidConfiguration = true;
@@ -97,7 +97,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                     tokenCredentialOptions.ClientId = clientId;
                     continue;
                 }
-            }     
+            }
             // Throw if the Authorization key is not present in the authentication string
             if (!isValidConfiguration)
             {
@@ -118,6 +118,6 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 
                 yield return (start, end - start);
             }
-        }        
+        }
     }
 }

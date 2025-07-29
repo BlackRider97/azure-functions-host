@@ -17,18 +17,18 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         // Allow for subscribing to flushing exceptions
         public const string SourceName = ApplicationInsightsDiagnosticConstants.ApplicationInsightsDiagnosticSourcePrefix + "ApplicationInsightsLoggerProvider";
 
-        private CancellationTokenSource _cancellationTokenSource;
         private readonly TelemetryClient _client;
         private readonly ApplicationInsightsLoggerOptions _loggerOptions;
         private DiagnosticSource _source = new DiagnosticListener(SourceName);
         private bool _disposed;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public ApplicationInsightsLoggerProvider(TelemetryClient client, IOptions<ApplicationInsightsLoggerOptions> loggerOptions)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _loggerOptions = loggerOptions?.Value ?? throw new ArgumentNullException(nameof(loggerOptions));
         }
-            
+
         // Constructor for testing purposes only
         internal ApplicationInsightsLoggerProvider(
             TelemetryClient client,
@@ -55,7 +55,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                         // Wait for the flush to complete or for 2 seconds to pass, whichever comes first. This method throws an AggregateException with a
                         // TaskCanceledException object in the InnerExceptions collection if the flush is canceled
                         task.Wait();
-                        
+
                         // Flush did not fully succeed
                         if (!task.Result)
                         {

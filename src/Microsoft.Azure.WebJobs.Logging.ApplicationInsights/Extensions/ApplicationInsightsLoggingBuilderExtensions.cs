@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.Extensions.Logging
 {
     /// <summary>
-    /// Extensions for ApplicationInsights configuration on an <see cref="ILoggingBuilder"/>. 
+    /// Extensions for ApplicationInsights configuration on an <see cref="ILoggingBuilder"/>.
     /// </summary>
     public static class ApplicationInsightsLoggingBuilderExtensions
     {
@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.Logging
 
         /// <summary>
         /// Registers Application Insights and <see cref="ApplicationInsightsLoggerProvider"/> with an <see cref="ILoggingBuilder"/>.
-        /// </summary>        
+        /// </summary>
         public static ILoggingBuilder AddApplicationInsightsWebJobs(
             this ILoggingBuilder builder)
         {
@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.Logging
 
         /// <summary>
         /// Registers Application Insights and <see cref="ApplicationInsightsLoggerProvider"/> with an <see cref="ILoggingBuilder"/>.
-        /// </summary>        
+        /// </summary>
         public static ILoggingBuilder AddApplicationInsightsWebJobs(
              this ILoggingBuilder builder,
              Action<ApplicationInsightsLoggerOptions> loggerOptionsConfiguration)
@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.Logging
 
         /// <summary>
         /// Registers Application Insights and <see cref="ApplicationInsightsLoggerProvider"/> with an <see cref="ILoggingBuilder"/>.
-        /// </summary>  
+        /// </summary>
         public static ILoggingBuilder AddApplicationInsightsWebJobs(
             this ILoggingBuilder builder,
             Action<ApplicationInsightsLoggerOptions> loggerOptionsConfiguration,

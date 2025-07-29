@@ -66,6 +66,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferenceOlderRuntimeAssemb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleDependencyVersions", "test\CSharpPrecompiledTestProjects\MultipleDependencyVersions\MultipleDependencyVersions.csproj", "{51E41947-888E-43BE-A1A9-6607AAED7B57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebJobs.Logging.ApplicationInsights", "src\Microsoft.Azure.WebJobs.Logging.ApplicationInsights\WebJobs.Logging.ApplicationInsights.csproj", "{17EC6A94-AEF1-3B68-D6FB-7742B6E238DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebJobs.Shared", "src\Microsoft.Azure.WebJobs.Shared\WebJobs.Shared.csproj", "{8CE92B56-F680-CF07-D8A4-E9E83F34E940}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -134,6 +138,14 @@ Global
 		{51E41947-888E-43BE-A1A9-6607AAED7B57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51E41947-888E-43BE-A1A9-6607AAED7B57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51E41947-888E-43BE-A1A9-6607AAED7B57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17EC6A94-AEF1-3B68-D6FB-7742B6E238DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17EC6A94-AEF1-3B68-D6FB-7742B6E238DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17EC6A94-AEF1-3B68-D6FB-7742B6E238DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17EC6A94-AEF1-3B68-D6FB-7742B6E238DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CE92B56-F680-CF07-D8A4-E9E83F34E940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CE92B56-F680-CF07-D8A4-E9E83F34E940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CE92B56-F680-CF07-D8A4-E9E83F34E940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CE92B56-F680-CF07-D8A4-E9E83F34E940}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

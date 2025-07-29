@@ -39,23 +39,22 @@ namespace Microsoft.Azure.WebJobs.Script.Config
             {
                 act = JsonConvert.SerializeObject(Activity.Current);
             }
-            _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor Beginning Activity.Current- " + act);
 
             if (item is RequestTelemetry request)
             {
-                _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor Beginning-, found a request telemetry -" + JsonConvert.SerializeObject(request, settings));
+                _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor Beginning-, found a request telemetry -" + item.GetType().Name + " - " + JsonConvert.SerializeObject(request, settings) + "------------" + act);
             }
             else
             {
-                _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor Beginning-" + JsonConvert.SerializeObject(item, settings));
+                _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor Beginning- " + item.GetType().Name + " - " + JsonConvert.SerializeObject(item, settings) + "------------" + act);
             }
 
             if (FilterApplicationInsightsFromWorker.Value)
             {
-                _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor Filtered out -" + JsonConvert.SerializeObject(item, settings));
+                _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor Filtered out -" + item.GetType().Name + " - " + JsonConvert.SerializeObject(item, settings));
                 return;
             }
-            _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor End-" + JsonConvert.SerializeObject(item, settings));
+            _source.Write(EventName, "WorkerTraceFilterTelemetryProcessor End");
             _next.Process(item);
         }
     }
@@ -80,13 +79,19 @@ namespace Microsoft.Azure.WebJobs.Script.Config
                 ContractResolver = new SafeContractResolver()
             };
 
+            string act = "null";
+            if (Activity.Current != null)
+            {
+                act = JsonConvert.SerializeObject(Activity.Current);
+            }
+
             if (item is RequestTelemetry request)
             {
-                _source.Write(EventName, "LastProcessor, found a request telemetry -" + JsonConvert.SerializeObject(request, settings));
+                _source.Write(EventName, "LastProcessor, found a request telemetry -" + item.GetType().Name + " - " + JsonConvert.SerializeObject(request, settings) + "------------" + act);
             }
             else
             {
-                _source.Write(EventName, "LastProcessor -" + JsonConvert.SerializeObject(item, settings));
+                _source.Write(EventName, "LastProcessor -" + item.GetType().Name + " - " + JsonConvert.SerializeObject(item, settings) + "------------" + act);
             }
             _next.Process(item);
         }

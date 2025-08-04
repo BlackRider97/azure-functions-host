@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.Azure.WebJobs.Logging;
+using Microsoft.Azure.WebJobs.Script.Workers.Rpc;
 
 namespace System
 {
@@ -26,6 +27,26 @@ namespace System
             string exceptionDetails = Sanitizer.Sanitize(exception.ToFormattedString());
 
             return (exceptionType, exceptionMessage, exceptionDetails);
+        }
+
+        public static bool IsCausedBy<T>(this Exception ex)
+        {
+            while (ex?.InnerException is not null)
+            {
+                ex = ex.InnerException;
+            }
+
+            return ex is T;
+        }
+
+        public static RpcException GetRpcException(this Exception ex)
+        {
+            while (ex?.InnerException is not null)
+            {
+                ex = ex.InnerException;
+            }
+
+            return ex as RpcException;
         }
     }
 }

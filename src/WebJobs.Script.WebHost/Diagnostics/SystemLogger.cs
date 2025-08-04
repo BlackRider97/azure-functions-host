@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Azure.WebJobs.Script.Config;
 using Microsoft.Azure.WebJobs.Script.Configuration;
 using Microsoft.Azure.WebJobs.Script.Eventing;
+using Microsoft.Azure.WebJobs.Script.Workers.Rpc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -21,7 +22,7 @@ namespace Microsoft.Azure.WebJobs.Script.WebHost.Diagnostics
         private readonly string _functionName;
         private readonly string _hostInstanceId;
         private readonly bool _isUserFunction;
-        private readonly string _rpcExceptionName = "Microsoft.Azure.WebJobs.Script.Workers.Rpc.RpcException";
+        private readonly string _readactionMessage = "\" <An exception occurred during invocation, but its details are redacted. Customers with AppInsights or OTel enabled can access full exception details. See aka.ms/troubleshoot for more details>\"";
         private readonly LogLevel _logLevel;
         private readonly IEnvironment _environment;
         private readonly IEventGenerator _eventGenerator;
@@ -189,10 +190,9 @@ namespace Microsoft.Azure.WebJobs.Script.WebHost.Diagnostics
                     functionName = string.IsNullOrEmpty(fex.MethodName) ? string.Empty : fex.MethodName.Replace("Host.Functions.", string.Empty);
                 }
 
-                var exceptionDetails = exception.GetExceptionDetails();
-
-                if (_logRpcExceptionDetails || !exceptionDetails.ExceptionType.Equals(_rpcExceptionName, StringComparison.Ordinal))
+                if (_logRpcExceptionDetails || !(exception is FunctionInvocationException && exception.IsCausedBy<RpcException>()))
                 {
+                    var exceptionDetails = exception.GetExceptionDetails();
                     // If _logExceptionDetails is true or the exception isn't an RPC exception, full details are logged.
                     details = exceptionDetails.ExceptionDetails;
                     innerExceptionType = exceptionDetails.ExceptionType;
@@ -200,8 +200,11 @@ namespace Microsoft.Azure.WebJobs.Script.WebHost.Diagnostics
                 }
                 else
                 {
-                    details = "An exception occurred during invocation, but its details are redacted. Customers with AppInsights or OTel enabled can access full exception details.";
-                    innerExceptionType = exceptionDetails.ExceptionType;
+                    var rpcException = exception.GetRpcException();
+
+                    details = exception.ToFormattedString().Replace(rpcException.RemoteMessage, _readactionMessage);
+                    innerExceptionMessage = rpcException.Message.Replace(rpcException.RemoteMessage, _readactionMessage);
+                    innerExceptionType = rpcException.RemoteTypeName;
                 }
             }
 

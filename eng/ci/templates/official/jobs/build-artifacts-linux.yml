@@ -9,13 +9,11 @@ jobs:
     intermediate_path: $(Agent.TempDirectory)/linux_host
     drop_path: $(Build.ArtifactStagingDirectory)
     linux_drop_path: $(drop_path)/linux
-    build_args: '-v m -c $(configuration) -r $(runtime) --self-contained true'
+    build_args: '-v m -c $(configuration) -r $(runtime)'
 
   templateContext:
     outputParentDirectory: $(drop_path)
     outputs:
-    # TODO: onboard to Azure Artifacts Drops to allow accessing this from docker linux pipeline in msazure
-    # https://eng.ms/docs/cloud-ai-platform/devdiv/one-engineering-system-1es/1es-docs/azure-artifacts/artifact-services-onboarding
     - output: pipelineArtifact
       displayName: Publish linux artifacts
       path: $(linux_drop_path)

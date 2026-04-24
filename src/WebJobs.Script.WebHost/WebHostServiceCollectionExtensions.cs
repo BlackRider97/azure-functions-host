@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Platform.Metrics.LinuxConsumption;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host.Storage;
 using Microsoft.Azure.WebJobs.Hosting;
+using Microsoft.Azure.WebJobs.Script.AppCapabilities;
 using Microsoft.Azure.WebJobs.Script.Config;
 using Microsoft.Azure.WebJobs.Script.Configuration;
 using Microsoft.Azure.WebJobs.Script.Diagnostics;
@@ -259,6 +260,10 @@ namespace Microsoft.Azure.WebJobs.Script.WebHost
             // Add health checks
             services.AddMetrics();
             services.AddHealthChecks().AddWebJobsScriptHealthChecks();
+
+            // App Capabilities related services
+            services.AddSingleton<IAppCapabilitiesStore, DefaultAppCapabilitiesStore>();
+            services.AddSingleton<IOptionsChangeTokenSource<AppCapabilitiesOptions>, AppCapabilitiesChangeTokenSource>();
         }
 
         internal static void AddHostingConfigOptions(this IServiceCollection services, IConfiguration configuration)

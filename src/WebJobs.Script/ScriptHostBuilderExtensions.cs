@@ -14,6 +14,7 @@ using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
+using Microsoft.Azure.WebJobs.Script.AppCapabilities;
 using Microsoft.Azure.WebJobs.Script.Binding;
 using Microsoft.Azure.WebJobs.Script.BindingExtensions;
 using Microsoft.Azure.WebJobs.Script.Config;
@@ -353,6 +354,10 @@ namespace Microsoft.Azure.WebJobs.Script
                     });
                 services.ConfigureOptions<ScaleOptionsSetup>();
                 services.ConfigureOptions<TimerTriggerPlatformOptionsSetup>();
+
+                services.AddOptions<AppCapabilitiesOptions>();
+                services.ConfigureOptions<AppCapabilitiesOptionsSetup>();
+                services.AddSingleton<IValidateOptions<AppCapabilitiesOptions>, AppCapabilitiesOptionsValidator>();
 
                 services.AddSingleton<IFileLoggingStatusManager, FileLoggingStatusManager>();
 

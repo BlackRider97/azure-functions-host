@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Logging;
+using Microsoft.Azure.WebJobs.Script.AppCapabilities;
 using Microsoft.Azure.WebJobs.Script.Config;
 using Microsoft.Azure.WebJobs.Script.Description;
 using Microsoft.Azure.WebJobs.Script.Diagnostics;
@@ -64,6 +65,7 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.Workers.Rpc
         private readonly IOptions<FunctionsHostingConfigOptions> _hostingConfigOptions;
         private readonly Mock<IHttpProxyService> _mockHttpProxyService = new Mock<IHttpProxyService>();
         private readonly IHttpProxyService _httpProxyService;
+        private readonly Mock<IAppCapabilitiesStore> _mockAppCapabilitiesStore = new Mock<IAppCapabilitiesStore>();
         private GrpcWorkerChannel _workerChannel;
 
         public GrpcWorkerChannelTests(ITestOutputHelper testOutput)
@@ -139,6 +141,7 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.Workers.Rpc
                _sharedMemoryManager,
                _workerConcurrencyOptions,
                _hostingConfigOptions,
+               _mockAppCapabilitiesStore.Object,
                _httpProxyService);
 
             if (autoStart)
@@ -242,6 +245,7 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.Workers.Rpc
                _sharedMemoryManager,
                _workerConcurrencyOptions,
                _hostingConfigOptions,
+               _mockAppCapabilitiesStore.Object,
                _httpProxyService);
             await Assert.ThrowsAsync<FileNotFoundException>(async () => await _workerChannel.StartWorkerProcessAsync(CancellationToken.None));
         }
@@ -388,6 +392,129 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.Workers.Rpc
                 () => _logger.GetLogMessages().Any(m => string.Equals(m.FormattedMessage, "Worker and host running in V2 compatibility mode")),
                 timeout: 3000,
                 pollingInterval: 50);
+        }
+
+        [Fact]
+        public async Task WorkerInitResponse_WithAppCapabilities_RegistersInStore()
+        {
+            var appCapabilities = new Dictionary<string, string>
+            {
+                { "capability1", "value1" },
+                { "capability2", "value2" },
+                { "capability3", "value3" }
+            };
+
+            await CreateDefaultWorkerChannel(autoStart: false);
+
+            // Setup the mock to capture SetAll call
+            Dictionary<string, string> capturedCapabilities = null;
+            _mockAppCapabilitiesStore
+                .Setup(x => x.TrySetAll(It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
+                .Callback<IEnumerable<KeyValuePair<string, string>>>(caps =>
+                {
+                    capturedCapabilities = new Dictionary<string, string>(caps);
+                });
+
+            // Send StartStream and configure to respond with appCapabilities
+            _testFunctionRpcService.OnMessage(StreamingMessage.ContentOneofCase.WorkerInitRequest,
+                _ => _testFunctionRpcService.PublishWorkerInitResponseEvent(capabilities: null, workerMetadata: null, appCapabilities: appCapabilities));
+
+            // Start the worker process which triggers init
+            await _workerChannel.StartWorkerProcessAsync(CancellationToken.None);
+
+            // Verify SetAll was called with the correct capabilities
+            _mockAppCapabilitiesStore.Verify(x => x.TrySetAll(It.IsAny<IEnumerable<KeyValuePair<string, string>>>()), Times.Once);
+
+            Assert.NotNull(capturedCapabilities);
+            Assert.Equal(3, capturedCapabilities.Count);
+            Assert.Equal("value1", capturedCapabilities["capability1"]);
+            Assert.Equal("value2", capturedCapabilities["capability2"]);
+            Assert.Equal("value3", capturedCapabilities["capability3"]);
+        }
+
+        [Fact]
+        public async Task WorkerInitResponse_WithEmptyAppCapabilities_DoesNotRegisterInStore()
+        {
+            await CreateDefaultWorkerChannel(autoStart: false);
+
+            // Send StartStream and configure to respond without appCapabilities
+            _testFunctionRpcService.OnMessage(StreamingMessage.ContentOneofCase.WorkerInitRequest,
+                _ => _testFunctionRpcService.PublishWorkerInitResponseEvent(capabilities: null, workerMetadata: null, appCapabilities: null));
+
+            // Start the worker process which triggers init
+            await _workerChannel.StartWorkerProcessAsync(CancellationToken.None);
+
+            // Verify SetAll was not called when appCapabilities is null or empty
+            _mockAppCapabilitiesStore.Verify(x => x.TrySetAll(It.IsAny<IDictionary<string, string>>()), Times.Never);
+
+            // Verify logging does not contain app capabilities message
+            var traces = _logger.GetLogMessages();
+            Assert.False(traces.Any(m => m.FormattedMessage.Contains("Registering") && m.FormattedMessage.Contains("app capabilities")));
+        }
+
+        [Fact]
+        public async Task WorkerInitResponse_WithAppCapabilities_HandlesExceptionGracefully()
+        {
+            var appCapabilities = new Dictionary<string, string>
+            {
+                { "capability1", "value1" }
+            };
+
+            await CreateDefaultWorkerChannel(autoStart: false);
+
+            // Setup the mock to throw an exception
+            _mockAppCapabilitiesStore
+                .Setup(x => x.TrySetAll(It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
+                .Throws(new InvalidOperationException("Test exception"));
+
+            // Send StartStream and configure to respond with appCapabilities
+            _testFunctionRpcService.OnMessage(StreamingMessage.ContentOneofCase.WorkerInitRequest,
+                _ => _testFunctionRpcService.PublishWorkerInitResponseEvent(capabilities: null, workerMetadata: null, appCapabilities: appCapabilities));
+
+            // Start the worker process which triggers init - should not throw
+            await _workerChannel.StartWorkerProcessAsync(CancellationToken.None);
+            await Task.Delay(500);
+
+            // Verify SetAll was called
+            _mockAppCapabilitiesStore.Verify(x => x.TrySetAll(It.IsAny<IEnumerable<KeyValuePair<string, string>>>()), Times.Once);
+
+            // Verify warning was logged
+            var traces = _logger.GetLogMessages();
+            Assert.True(traces.Any(m => m.Level == LogLevel.Warning && m.FormattedMessage.Contains("Failed to register app capabilities")));
+        }
+
+        [Fact]
+        public async Task WorkerInitResponse_WithAppCapabilities_DoesNotRegisterInStore_ForLogicApp()
+        {
+            // Arrange - Set environment to indicate this is a Logic App
+            _testEnvironment.SetEnvironmentVariable("APP_KIND", ScriptConstants.WorkFlowAppKind);
+
+            var appCapabilities = new Dictionary<string, string>
+            {
+                { "capability1", "value1" },
+                { "capability2", "value2" },
+                { "capability3", "value3" }
+            };
+
+            await CreateDefaultWorkerChannel(autoStart: false);
+
+            // Setup the mock to track if SetAll is called
+            _mockAppCapabilitiesStore
+                .Setup(x => x.TrySetAll(It.IsAny<IEnumerable<KeyValuePair<string, string>>>()));
+
+            // Configure to respond with appCapabilities
+            _testFunctionRpcService.OnMessage(StreamingMessage.ContentOneofCase.WorkerInitRequest,
+                _ => _testFunctionRpcService.PublishWorkerInitResponseEvent(capabilities: null, workerMetadata: null, appCapabilities: appCapabilities));
+
+            // Act - Start the worker process which triggers init
+            await _workerChannel.StartWorkerProcessAsync(CancellationToken.None);
+
+            // Assert - Verify SetAll was NOT called for Logic Apps
+            _mockAppCapabilitiesStore.Verify(x => x.TrySetAll(It.IsAny<IDictionary<string, string>>()), Times.Never);
+
+            // Verify no registration logging occurred
+            var traces = _logger.GetLogMessages();
+            Assert.False(traces.Any(m => m.FormattedMessage.Contains("Registering") && m.FormattedMessage.Contains("app capabilities")));
         }
 
         [Theory]
@@ -606,6 +733,7 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.Workers.Rpc
                _sharedMemoryManager,
                _workerConcurrencyOptions,
                _hostingConfigOptions,
+               _mockAppCapabilitiesStore.Object,
                _httpProxyService);
             channel.SetupFunctionInvocationBuffers(GetTestFunctionsList("node"));
             ScriptInvocationContext scriptInvocationContext = GetTestScriptInvocationContext(invocationId, resultSource);
@@ -1388,6 +1516,7 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.Workers.Rpc
                _sharedMemoryManager,
                _workerConcurrencyOptions,
                _hostingConfigOptions,
+               _mockAppCapabilitiesStore.Object,
                _httpProxyService);
 
             IEnumerable<TimeSpan> latencyHistory = null;
@@ -1429,6 +1558,7 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.Workers.Rpc
                _sharedMemoryManager,
                _workerConcurrencyOptions,
                _hostingConfigOptions,
+               _mockAppCapabilitiesStore.Object,
                _httpProxyService);
 
             await Task.Yield();

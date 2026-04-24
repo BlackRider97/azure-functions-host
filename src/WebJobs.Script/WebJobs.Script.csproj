@@ -35,8 +35,8 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Timers.Storage" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Script.Abstractions" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Script.Abstractions" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
     <PackageReference Include="Microsoft.Extensions.Azure" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" />

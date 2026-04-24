@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
+using Microsoft.Azure.WebJobs.Script.AppCapabilities;
 using Microsoft.Azure.WebJobs.Script.Config;
 using Microsoft.Azure.WebJobs.Script.Diagnostics;
 using Microsoft.Azure.WebJobs.Script.Eventing;
@@ -38,6 +39,7 @@ namespace Microsoft.Azure.WebJobs.Script.Grpc
             ISharedMemoryManager sharedMemoryManager,
             IOptions<WorkerConcurrencyOptions> workerConcurrencyOptions,
             IOptions<FunctionsHostingConfigOptions> hostingConfigOptions,
+            IAppCapabilitiesStore appCapabilitiesStore,
             IHttpProxyService httpProxyService)
             : base(
                 workerId,
@@ -52,6 +54,7 @@ namespace Microsoft.Azure.WebJobs.Script.Grpc
                 sharedMemoryManager,
                 workerConcurrencyOptions,
                 hostingConfigOptions,
+                appCapabilitiesStore,
                 httpProxyService)
         {
             _rpcWorkerProcess = rpcWorkerProcess;

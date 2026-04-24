@@ -12,6 +12,7 @@ using Azure.Data.Tables;
 using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.WebJobs.Script.AppCapabilities;
 using Microsoft.Azure.WebJobs.Script.Config;
 using Microsoft.Azure.WebJobs.Script.Description;
 using Microsoft.Azure.WebJobs.Script.Eventing;
@@ -24,6 +25,7 @@ using Microsoft.Azure.WebJobs.Script.Workers.SharedMemoryDataTransfer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.WebJobs.Script.Tests;
 using Moq;
 using Xunit;
@@ -277,6 +279,9 @@ namespace Microsoft.Azure.WebJobs.Script.Tests
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
+            // This is registered by WebHost typically, but is needed for tests that run without WebHost, so adding it here at the ScriptHost level.
+            services.AddSingleton<IAppCapabilitiesStore, DefaultAppCapabilitiesStore>();
+            services.AddSingleton<IOptionsChangeTokenSource<AppCapabilitiesOptions>, AppCapabilitiesChangeTokenSource>();
         }
 
         public virtual async Task DisposeAsync()

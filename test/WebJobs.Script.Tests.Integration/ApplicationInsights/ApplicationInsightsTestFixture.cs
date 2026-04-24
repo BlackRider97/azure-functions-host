@@ -7,6 +7,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using Microsoft.ApplicationInsights.Channel;
+using Microsoft.Azure.WebJobs.Script.AppCapabilities;
 using Microsoft.Azure.WebJobs.Script.Config;
 using Microsoft.Azure.WebJobs.Script.Diagnostics;
 using Microsoft.Azure.WebJobs.Script.Eventing;
@@ -106,23 +107,28 @@ namespace Microsoft.Azure.WebJobs.Script.Tests.ApplicationInsights
 
         private class TestGrpcWorkerChannelFactory : GrpcWorkerChannelFactory
         {
-            public TestGrpcWorkerChannelFactory(IScriptEventManager eventManager, IScriptHostManager hostManager, IEnvironment environment, ILoggerFactory loggerFactory, IOptionsMonitor<ScriptApplicationHostOptions> applicationHostOptions, IRpcWorkerProcessFactory rpcWorkerProcessManager, ISharedMemoryManager sharedMemoryManager, IOptions<WorkerConcurrencyOptions> workerConcurrencyOptions, IOptions<FunctionsHostingConfigOptions> hostingConfigOptions, IHttpProxyService httpProxyService)
-                : base(eventManager, hostManager, environment, loggerFactory, applicationHostOptions, rpcWorkerProcessManager, sharedMemoryManager, workerConcurrencyOptions, hostingConfigOptions, httpProxyService)
+            public TestGrpcWorkerChannelFactory(IScriptEventManager eventManager, IScriptHostManager hostManager, IEnvironment environment, ILoggerFactory loggerFactory,
+                IOptionsMonitor<ScriptApplicationHostOptions> applicationHostOptions, IRpcWorkerProcessFactory rpcWorkerProcessManager, ISharedMemoryManager sharedMemoryManager, 
+                IOptions<WorkerConcurrencyOptions> workerConcurrencyOptions, IOptions<FunctionsHostingConfigOptions> hostingConfigOptions, IAppCapabilitiesStore appCapabilitiesStore, IHttpProxyService httpProxyService)
+                : base(eventManager, hostManager, environment, loggerFactory, applicationHostOptions, rpcWorkerProcessManager, sharedMemoryManager, workerConcurrencyOptions, hostingConfigOptions, appCapabilitiesStore, httpProxyService)
             {
             }
 
             internal override IRpcWorkerChannel CreateInternal(string workerId, IScriptEventManager eventManager, IScriptHostManager hostManager, RpcWorkerConfig languageWorkerConfig, IWorkerProcess rpcWorkerProcess,
             ILogger workerLogger, IMetricsLogger metricsLogger, int attemptCount, IEnvironment environment, IOptionsMonitor<ScriptApplicationHostOptions> applicationHostOptions,
-            ISharedMemoryManager sharedMemoryManager, IOptions<WorkerConcurrencyOptions> workerConcurrencyOptions, IOptions<FunctionsHostingConfigOptions> hostingConfigOptions, IHttpProxyService httpProxyService)
+            ISharedMemoryManager sharedMemoryManager, IOptions<WorkerConcurrencyOptions> workerConcurrencyOptions, IOptions<FunctionsHostingConfigOptions> hostingConfigOptions, IAppCapabilitiesStore capabilitiesStore, 
+            IHttpProxyService httpProxyService)
             {
                 return new TestGrpcWorkerChannel(workerId, eventManager, hostManager, languageWorkerConfig, rpcWorkerProcess, workerLogger, metricsLogger,
-                    attemptCount, environment, applicationHostOptions, sharedMemoryManager, workerConcurrencyOptions, hostingConfigOptions, httpProxyService);
+                    attemptCount, environment, applicationHostOptions, sharedMemoryManager, workerConcurrencyOptions, hostingConfigOptions, capabilitiesStore, httpProxyService);
             }
 
             private class TestGrpcWorkerChannel : GrpcWorkerChannel
             {
-                internal TestGrpcWorkerChannel(string workerId, IScriptEventManager eventManager, IScriptHostManager hostManager, RpcWorkerConfig workerConfig, IWorkerProcess rpcWorkerProcess, ILogger logger, IMetricsLogger metricsLogger, int attemptCount, IEnvironment environment, IOptionsMonitor<ScriptApplicationHostOptions> applicationHostOptions, ISharedMemoryManager sharedMemoryManager, IOptions<WorkerConcurrencyOptions> workerConcurrencyOptions, IOptions<FunctionsHostingConfigOptions> hostingConfigOptions, IHttpProxyService httpProxyService)
-                    : base(workerId, eventManager, hostManager, workerConfig, rpcWorkerProcess, logger, metricsLogger, attemptCount, environment, applicationHostOptions, sharedMemoryManager, workerConcurrencyOptions, hostingConfigOptions, httpProxyService)
+                internal TestGrpcWorkerChannel(string workerId, IScriptEventManager eventManager, IScriptHostManager hostManager, RpcWorkerConfig workerConfig, IWorkerProcess rpcWorkerProcess, ILogger logger, 
+                    IMetricsLogger metricsLogger, int attemptCount, IEnvironment environment, IOptionsMonitor<ScriptApplicationHostOptions> applicationHostOptions, ISharedMemoryManager sharedMemoryManager, 
+                    IOptions<WorkerConcurrencyOptions> workerConcurrencyOptions, IOptions<FunctionsHostingConfigOptions> hostingConfigOptions, IAppCapabilitiesStore appCapabilitiesStore, IHttpProxyService httpProxyService)
+                    : base(workerId, eventManager, hostManager, workerConfig, rpcWorkerProcess, logger, metricsLogger, attemptCount, environment, applicationHostOptions, sharedMemoryManager, workerConcurrencyOptions, hostingConfigOptions, appCapabilitiesStore, httpProxyService)
                 {
                 }
 

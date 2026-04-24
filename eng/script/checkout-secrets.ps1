@@ -8,7 +8,8 @@ function AcquireLease($blob) {
 }
 
 # use this for tracking metadata in lease blobs
-$buildName = "3.0." + $env:buildNumber + "_" + $env:SYSTEM_JOBDISPLAYNAME
+$buildName = "$env:BUILD_BUILDID - $env:BUILD_BUILDNUMBER ($env:SYSTEM_JOBDISPLAYNAME)"
+$buildUrl = "$env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI$env:SYSTEM_TEAMPROJECT/_build/results?buildId=$env:BUILD_BUILDID"
 
 Import-Module Az.Storage
 
@@ -30,6 +31,21 @@ While($true) {
     Write-Host "  ${name}: $leaseStatus"
     
     if ($leaseStatus -eq "Locked") {
+      try {
+        $blob.ICloudBlob.FetchAttributes()
+        $lastModified = $blob.ICloudBlob.Properties.LastModified
+        if ($lastModified -ne $null -and $lastModified.UtcDateTime -lt (Get-Date).AddHours(-6).ToUniversalTime()) {
+          $age = [math]::Round(((Get-Date).ToUniversalTime() - $lastModified.UtcDateTime).TotalHours, 1)
+          $build = $blob.ICloudBlob.Metadata["Build"]
+          $url = $blob.ICloudBlob.Metadata["BuildUrl"]
+          Write-Host "##vso[task.logissue type=warning]Stale lease detected on '${name}' (locked for ${age}h). Build: ${build} | URL: ${url}"
+          Write-Host "  Breaking stale lease on ${name}."
+          $blob.ICloudBlob.BreakLease([TimeSpan]::Zero, $null, $null, $null)
+          Write-Host "  Lease broken. Will attempt to acquire on next pass."
+        }
+      } catch {
+        Write-Host "##vso[task.logissue type=warning]Unable to inspect or break stale lease on '${name}'. Continuing. $($_.Exception.Message)"
+      }
       continue
     }
 
@@ -42,6 +58,7 @@ While($true) {
       try {
         $blob.ICloudBlob.FetchAttributes()
         $blob.ICloudBlob.Metadata["Build"] = $buildName
+        $blob.ICloudBlob.Metadata["BuildUrl"] = $buildUrl
         $accessCondition = New-Object -TypeName Microsoft.Azure.Storage.AccessCondition
         $accessCondition.LeaseId = $token
         $blob.ICloudBlob.SetMetadata($accessCondition)

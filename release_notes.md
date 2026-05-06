@@ -6,3 +6,4 @@
 
 - Restore Workflows-bundle worker discovery on Logic App (#11759)
 - Ensure wwwroot directory exists on new slot and app creation w/ networking restrictions (#11757)
+- Only register the host-name-fixup middleware on hosting environments where requests are routed through the Antares front end

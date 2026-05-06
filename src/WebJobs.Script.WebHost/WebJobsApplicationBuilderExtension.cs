@@ -44,7 +44,18 @@ namespace Microsoft.Azure.WebJobs.Script.WebHost
             builder.UseMiddleware<HttpRequestBodySizeMiddleware>();
             builder.UseMiddleware<SystemTraceMiddleware>();
             builder.UseMiddleware<HandleCancellationMiddleware>();
-            builder.UseMiddleware<HostnameFixupMiddleware>();
+
+            // HostnameFixupMiddleware updates the cached host name from the
+            // WAS_DEFAULT_HOSTNAME request header. That header is only populated
+            // by the Antares front end, so the middleware is only meaningful on
+            // SKUs that are guaranteed to route through it. The SKU is determined
+            // from environment variables that are set in the placeholder image and
+            // do not change after specialization, so this decision is stable for
+            // the lifetime of the process.
+            if (environment.FrontEndRoutingEnsured())
+            {
+                builder.UseMiddleware<HostnameFixupMiddleware>();
+            }
 
             // Health is registered early in the pipeline to ensure it can avoid failures from the rest of the pipeline.
             builder.UseHealthChecks();
